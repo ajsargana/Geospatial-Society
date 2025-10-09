@@ -22,7 +22,7 @@ export default function About() {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="py-20 px-6 relative overflow-hidden">
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 -z-10">
           <img src={backdropImage} alt="" className="w-full h-full object-cover opacity-40" />
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10" />
         </div>

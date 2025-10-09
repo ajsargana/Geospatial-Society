@@ -661,4 +661,56 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Choose storage implementation based on environment
+async function initializeStorage(): Promise<IStorage> {
+  const databaseUrl = process.env.DATABASE_URL;
+
+  if (databaseUrl) {
+    console.log('[Storage] Using PostgreSQL database storage');
+    try {
+      const { DbStorage } = await import('./db-storage');
+      const dbStorage = new DbStorage();
+
+      // Initialize default admin user if database is empty
+      const existingUsers = await dbStorage.getAllAdminUsers();
+      if (existingUsers.length === 0) {
+        const username = process.env.ADMIN_USERNAME || "admin";
+        const password = process.env.ADMIN_PASSWORD || "admin123";
+
+        console.log('[Storage] Initializing default admin user...');
+        await dbStorage.createAdminUser({
+          username,
+          password,
+          email: "admin@ist.edu.pk",
+          role: "admin",
+          isActive: true,
+        });
+        console.log('[Storage] Default admin user created');
+      }
+
+      return dbStorage;
+    } catch (error) {
+      console.error('[Storage] Failed to initialize database storage:', error);
+      console.log('[Storage] Falling back to in-memory storage');
+      return new MemStorage();
+    }
+  } else {
+    console.log('[Storage] No DATABASE_URL found, using in-memory storage');
+    return new MemStorage();
+  }
+}
+
+// Export a promise that resolves to the storage instance
+export const storagePromise = initializeStorage();
+
+// For backwards compatibility, export a synchronous storage instance
+// This will be replaced once the async initialization completes
+export let storage: IStorage = new MemStorage();
+
+// Update the storage reference once initialization completes
+storagePromise.then((initializedStorage) => {
+  storage = initializedStorage;
+  console.log('[Storage] Storage initialization complete');
+}).catch((error) => {
+  console.error('[Storage] Critical error during storage initialization:', error);
+});

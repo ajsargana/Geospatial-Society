@@ -148,9 +148,6 @@ export default function Footer() {
             <Link href="/terms-of-service" className="hover:text-foreground transition-colors" data-testid="link-terms">
               Terms of Service
             </Link>
-            <Link href="/admin" className="hover:text-foreground transition-colors" data-testid="link-admin">
-              Admin
-            </Link>
           </div>
         </div>
       </div>

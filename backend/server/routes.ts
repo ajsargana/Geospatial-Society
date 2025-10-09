@@ -467,10 +467,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Induction Form Routes (Public submission, Admin management)
   app.post("/api/induction-forms", async (req, res) => {
     try {
+      console.log('[Induction Form] Received submission:', req.body);
       const validatedData = insertInductionFormSchema.parse(req.body);
       const form = await storage.createInductionForm(validatedData);
-      res.json(form);
+      console.log('[Induction Form] Form created with ID:', form.id);
+      // Serialize the response properly
+      const serializedForm = {
+        ...form,
+        submittedAt: form.submittedAt.toISOString()
+      };
+      res.json(serializedForm);
     } catch (error) {
+      console.error('[Induction Form] Error:', error);
       if (error.name === "ZodError") {
         return res.status(400).json({ error: "Invalid data", details: error.errors });
       }
@@ -481,8 +489,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/admin/induction-forms", requireAuth, async (req, res) => {
     try {
       const forms = await storage.getAllInductionForms();
-      res.json(forms);
+      console.log('[Induction Form] Retrieved forms count:', forms.length);
+      // Ensure dates are properly serialized
+      const serializedForms = forms.map(form => ({
+        ...form,
+        submittedAt: form.submittedAt.toISOString()
+      }));
+      res.json(serializedForms);
     } catch (error) {
+      console.error("[Induction Form] Get induction forms error:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
