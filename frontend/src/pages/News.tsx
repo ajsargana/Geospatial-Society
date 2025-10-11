@@ -51,7 +51,7 @@ export default function News() {
       <div className="absolute inset-0 z-0">
         <img src={backdropImage} alt="" className="w-full h-full object-cover opacity-30 fixed" />
       </div>
-      <div className="relative z-10 py-16 px-6">
+      <div className="relative z-10 pt-16 pb-32 px-6">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
